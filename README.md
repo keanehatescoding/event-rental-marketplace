@@ -12,5 +12,3 @@
 - **MVP:** Start with one category that avoids directly competing with Happy Wishy's gowns — e.g., decor and furniture — with a small curated inventory in Nairobi, discovered and booked Instagram-first.
 
 ---
-
-Source: `PROJECTS.md` (Online Business Models: Proven Abroad, Underdeveloped in Kenya).
