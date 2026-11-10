@@ -1,10 +1,13 @@
 {
-  "version": 1,
+  "version": "7",
+  "dialect": "postgresql",
   "entries": [
     {
-      "id": "0000_initial_migration",
-      "hash": "d0004d21169c7b56",
-      "createdAt": 1794295314
+      "idx": 0,
+      "version": "7",
+      "when": 1794295314000,
+      "tag": "0000_initial_migration",
+      "breakpoints": true
     }
   ]
 }
