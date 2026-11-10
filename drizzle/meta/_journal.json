@@ -1,1 +1,10 @@
-{"version": 0, "migrations": []}
+{
+  "version": 1,
+  "entries": [
+    {
+      "id": "0000_initial_migration",
+      "hash": "d0004d21169c7b56",
+      "createdAt": 1794295314
+    }
+  ]
+}
