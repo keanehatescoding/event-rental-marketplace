@@ -4,11 +4,35 @@
  * Run with: npm run db:seed
  */
 
-import { eq } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { db, schema } from "../src/db";
 
 const SEED_OWNER_EMAIL = "seed.vendor.one@example.com";
 const SEED_PASSWORD_HASH = "seed-account-not-usable-for-login";
+
+function pickBy<T>(rows: T[], predicate: (row: T) => boolean, label: string): T {
+  const row = rows.find(predicate);
+  if (!row) {
+    throw new Error(`Seed failed: no inserted row found for ${label}`);
+  }
+  return row;
+}
+
+function pickByEmail<T extends { email: string }>(rows: T[], email: string): T {
+  return pickBy(
+    rows,
+    (row) => row.email.toLowerCase() === email.toLowerCase(),
+    email,
+  );
+}
+
+function pickByName<T extends { name: string }>(rows: T[], name: string): T {
+  return pickBy(rows, (row) => row.name === name, name);
+}
+
+function pickBySlug<T extends { slug: string }>(rows: T[], slug: string): T {
+  return pickBy(rows, (row) => row.slug === slug, slug);
+}
 
 function addDays(base: Date, days: number): Date {
   const next = new Date(base);
@@ -28,31 +52,34 @@ async function main() {
 
   console.log("Seeding database...");
 
-  const existing = await db
-    .select({ id: schema.users.id })
-    .from(schema.users)
-    .where(eq(schema.users.email, SEED_OWNER_EMAIL))
-    .limit(1);
-
-  if (existing.length > 0) {
-    console.log("Seed data already present; nothing to do");
-    process.exit(0);
-  }
-
   const start = addDays(new Date(), 30);
   const endsAt = addDays(start, 2);
 
+  let alreadySeeded = false;
+
   await db.transaction(async (tx) => {
-    const [ownerOne, ownerTwo, renter] = await tx
+    const insertedOwners = await tx
+      .insert(schema.users)
+      .values({
+        email: SEED_OWNER_EMAIL,
+        name: "Grace Mwangi",
+        phone: "+254700000001",
+        passwordHash: SEED_PASSWORD_HASH,
+        emailVerifiedAt: new Date(),
+      })
+      .onConflictDoNothing({ target: sql`lower(${schema.users.email})` })
+      .returning({ id: schema.users.id, email: schema.users.email });
+
+    if (insertedOwners.length === 0) {
+      alreadySeeded = true;
+      return;
+    }
+
+    const ownerOne = insertedOwners[0];
+
+    const insertedUsers = await tx
       .insert(schema.users)
       .values([
-        {
-          email: SEED_OWNER_EMAIL,
-          name: "Grace Mwangi",
-          phone: "+254700000001",
-          passwordHash: SEED_PASSWORD_HASH,
-          emailVerifiedAt: new Date(),
-        },
         {
           email: "seed.vendor.two@example.com",
           name: "Peter Otieno",
@@ -68,9 +95,12 @@ async function main() {
           emailVerifiedAt: new Date(),
         },
       ])
-      .returning({ id: schema.users.id });
+      .returning({ id: schema.users.id, email: schema.users.email });
 
-    const [decorVendor, soundVendor] = await tx
+    const ownerTwo = pickByEmail(insertedUsers, "seed.vendor.two@example.com");
+    const renter = pickByEmail(insertedUsers, "seed.renter@example.com");
+
+    const seededVendors = await tx
       .insert(schema.vendors)
       .values([
         {
@@ -95,7 +125,10 @@ async function main() {
           published: true,
         },
       ])
-      .returning({ id: schema.vendors.id });
+      .returning({ id: schema.vendors.id, slug: schema.vendors.slug });
+
+    const decorVendor = pickBySlug(seededVendors, "karen-decor-furniture");
+    const soundVendor = pickBySlug(seededVendors, "westlands-sound-lighting");
 
     const seededItems = await tx
       .insert(schema.items)
@@ -176,8 +209,8 @@ async function main() {
       })
       .returning({ id: schema.events.id });
 
-    const chairs = seededItems[0];
-    const tables = seededItems[1];
+    const chairs = pickByName(seededItems, "Gold Chiavari Chair");
+    const tables = pickByName(seededItems, "Round Banquet Table (1.8m)");
     const days = 3;
     const chairQuantity = 100;
     const tableQuantity = 15;
@@ -230,6 +263,11 @@ async function main() {
       damageNotes: "",
     });
   });
+
+  if (alreadySeeded) {
+    console.log("Seed data already present; nothing to do");
+    process.exit(0);
+  }
 
   console.log("Seeding complete");
   process.exit(0);
