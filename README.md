@@ -22,6 +22,7 @@ npm install
 # point .env at a Postgres instance, see .env.example
 npm run db:generate   # drizzle-kit: emit SQL migrations from the schema
 npm run db:migrate    # apply migrations in ./drizzle
+npm run db:seed       # insert demo vendors, items, an event and a booking
 npm run dev           # Next.js dev server on :3000
 ```
 
@@ -29,11 +30,10 @@ What is here:
 - `src/db/schema.ts` — Drizzle Postgres schema specific to this domain
 - `src/db/index.ts` — pooled `pg` + Drizzle client
 - `src/app/layout.tsx`, `src/app/page.tsx`, `src/app/globals.css` — minimal Next.js app scaffold
-- `scripts/migrate.ts`, `scripts/seed.ts` — Drizzle migration and seed entry points
+- `scripts/migrate.ts`, `scripts/seed.ts` — Drizzle migration and seed entry points; the seed is idempotent and inserts two vendors, their items, a renter event and a confirmed booking
 - `drizzle.config.ts`, `next.config.ts`, `tsconfig.json`, `eslint.config.mjs`, `postcss.config.mjs`
 - `.gitignore`, `.env.example`
 
 What is still a stub:
 - Auth (sessions, password reset, email verify) — copy and adapt the `lib/session.ts`, `lib/password.ts`, `lib/email-verification.ts` set from `odpc-compliance-saas`.
 - Payments (M-Pesa Daraja / Paystack / card) — stack-specific, add per project.
-- `scripts/seed.ts` seed data — the script runs but does not insert sample records yet.
