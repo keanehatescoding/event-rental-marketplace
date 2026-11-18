@@ -51,7 +51,9 @@ async function main() {
 
   console.log("Seeding database...");
 
-  const start = addDays(new Date(), 30);
+  // This event carries a completed pre-event inspection, so it must be in the
+  // past; otherwise that inspection would record a future check as performed.
+  const start = addDays(new Date(), -30);
   const endsAt = addDays(start, 2);
 
   let alreadySeeded = false;
