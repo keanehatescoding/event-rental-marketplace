@@ -4,7 +4,6 @@
  * Run with: npm run db:seed
  */
 
-import { sql } from "drizzle-orm";
 import { db, schema } from "../src/db";
 
 const SEED_OWNER_EMAIL = "seed.vendor.one@example.com";
@@ -67,7 +66,7 @@ async function main() {
         passwordHash: SEED_PASSWORD_HASH,
         emailVerifiedAt: new Date(),
       })
-      .onConflictDoNothing({ target: sql`lower(${schema.users.email})` })
+      .onConflictDoNothing()
       .returning({ id: schema.users.id, email: schema.users.email });
 
     if (insertedOwners.length === 0) {

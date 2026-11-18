@@ -17,7 +17,7 @@
 
 Scaffolded as a Next.js 16 + Drizzle (Postgres) app, matching the stack used in `odpc-compliance-saas`. The schema in `src/db/schema.ts` is the current source of truth for the data model; UI, auth and payment integrations are not yet wired up.
 
-Requires **Node.js 20.19.0 or later**: the `db:migrate` and `db:seed` scripts pass `--env-file-if-exists` to `tsx`, which Node.js only supports from v20.19.0.
+Requires **Node.js 20.19.0 on the 20.x line or 22.9.0 on the 22.x line**: the `db:migrate` and `db:seed` scripts pass `--env-file-if-exists` to `tsx`, and Node.js only supports that flag from those versions.
 
 ```
 npm install
