@@ -18,7 +18,7 @@ CREATE TABLE users (
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
-CREATE UNIQUE INDEX users_email_lower_idx ON users (lower(email));
+CREATE UNIQUE INDEX users_email_lower_idx ON users (lower("email"));
 
 CREATE TABLE sessions (
     id TEXT PRIMARY KEY,
